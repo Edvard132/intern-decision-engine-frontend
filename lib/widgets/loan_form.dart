@@ -27,13 +27,16 @@ class _LoanFormState extends State<LoanForm> {
   int _loanAmountResult = 0;
   int _loanPeriodResult = 0;
   String _errorMessage = '';
+  String _selectedCountry = 'Estonia';
+
+  
 
   // Submit the form and update the state with the loan decision results.
   // Only submits if the form inputs are validated.
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final result = await _apiService.requestLoanDecision(
-          _nationalId, _loanAmount, _loanPeriod);
+          _nationalId, _loanAmount, _loanPeriod, _selectedCountry);
       setState(() {
         _loanAmountResult = int.parse(result['loanAmount'].toString());
         _loanPeriodResult = int.parse(result['loanPeriod'].toString());
@@ -80,7 +83,29 @@ class _LoanFormState extends State<LoanForm> {
                       );
                     },
                   ),
-                  const SizedBox(height: 60.0),
+                  const SizedBox(height: 30.0),
+                    DropdownButtonFormField<String>(
+                      value: _selectedCountry ?? "Estonia",
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedCountry = newValue ?? "Estonia";
+                          _submitForm();
+                        });
+                      },
+                      items: const [
+                        DropdownMenuItem<String>(value: 'Estonia', child: Text('Estonia')),
+                        DropdownMenuItem<String>(value: 'Latvia', child: Text('Latvia')),
+                        DropdownMenuItem<String>(value: 'Lithuania', child: Text('Lithuania')),
+                      ],
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                      dropdownColor: Colors.deepPurple,
+                      decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      ),   
+                    ),
+                  const SizedBox(height: 30.0),
                   Text('Loan Amount: $_loanAmount €'),
                   const SizedBox(height: 8),
                   Slider.adaptive(
